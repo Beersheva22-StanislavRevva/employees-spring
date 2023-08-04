@@ -8,5 +8,10 @@ public interface AdvService {
 
 	Adv addAdv(Adv adv);
 	List<Adv> getAdvs();
+	List<Adv> getCatAdvs(String category);
+	List<Adv> getPriceAdvs(int minPrice);
+	void deleteAdv(String id);
+	Adv updateAdv(Adv adv);
+	Adv getAdv(String id);
 
 }

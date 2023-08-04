@@ -34,8 +34,32 @@ public class AdvController {
 	@GetMapping
 	public List<Adv> getAdvs() {
 		List<Adv> res = advService.getAdvs();
-		log.info("recieved advs list" + res);
 		return res;
 	}
-	
+	@GetMapping("{id}")
+	public Adv getAdv(@PathVariable(name="id") String id) {
+		Adv res = advService.getAdv(id);
+		return res;
+	}
+	@GetMapping("category/{category}")
+	public List<Adv> getCatAdvs(@PathVariable(name="category") String category) {
+		List<Adv> res = advService.getCatAdvs(category);
+		return res;
+	}
+	@GetMapping("price/{minPrice}")
+	public List<Adv> getPriceAdvs(@PathVariable(name="price") int minPrice) {
+		List<Adv> res = advService.getPriceAdvs(minPrice);
+		return res;
+		
+	}
+	@DeleteMapping("{id}")
+	public void deleteAdv(@PathVariable(name="id") String id) {
+		log.info("id inside a path {}", id);
+		advService.deleteAdv(id);
+	}
+	@PutMapping("{id}")
+	public Adv updateAdv(@PathVariable(name="id") String id,@RequestBody Adv adv) {
+		log.info("id inside a path {}", id);
+		return advService.updateAdv(adv);
+	}
 }
