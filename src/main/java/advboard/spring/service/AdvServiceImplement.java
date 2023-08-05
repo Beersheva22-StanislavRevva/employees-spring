@@ -22,6 +22,7 @@ public class AdvServiceImplement implements AdvService {
 		advsMap.put(adv.getId(), adv);
 		categoriesMap.computeIfAbsent(adv.getCategory(), k -> new ArrayList<>()).add(adv);
 		pricesMap.computeIfAbsent(adv.getPrice(), k -> new ArrayList<>()).add(adv);
+		log.info("adv with id:" + adv.getId() + "added");
 		return adv;
 	}
 	
@@ -55,7 +56,7 @@ public class AdvServiceImplement implements AdvService {
 		Adv adv = advsMap.remove(id);
 		categoriesMap.get(adv.getCategory()).remove(adv);
 		pricesMap.get(adv.getPrice()).remove(adv);
-		log.info("advsMap:  " + advsMap);
+		log.info("adv with id:" + id + "deleted");
 
 	}
 
@@ -63,8 +64,9 @@ public class AdvServiceImplement implements AdvService {
 	public Adv updateAdv(Adv adv) {
 		Adv advUpd = adv;
 		deleteAdv(adv.getId());
-		addAdv(advUpd);
-		return advUpd;
+		log.info("adv with id:" + adv.getId() + "updated");
+		return addAdv(advUpd);
+		 
 	}
 
 	}

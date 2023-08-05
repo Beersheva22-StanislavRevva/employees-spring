@@ -54,12 +54,10 @@ public class AdvController {
 	}
 	@DeleteMapping("{id}")
 	public void deleteAdv(@PathVariable(name="id") String id) {
-		log.info("id inside a path {}", id);
 		advService.deleteAdv(id);
 	}
 	@PutMapping("{id}")
 	public Adv updateAdv(@PathVariable(name="id") String id,@RequestBody Adv adv) {
-		log.info("id inside a path {}", id);
 		return advService.updateAdv(adv);
 	}
 }
