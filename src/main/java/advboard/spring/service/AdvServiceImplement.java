@@ -41,6 +41,7 @@ public class AdvServiceImplement implements AdvService {
 	@Override
 	public List<Adv> getCatAdvs(String category) {
 		List<Adv> res = new ArrayList<Adv>(categoriesMap.getOrDefault(category, Collections.emptyList()));
+		log.info( category + "result: " + res);
 		return res;
 	}
 

@@ -47,7 +47,8 @@ public class AdvController {
 		return res;
 	}
 	@GetMapping("price/{minPrice}")
-	public List<Adv> getPriceAdvs(@PathVariable(name="price") int minPrice) {
+	public List<Adv> getPriceAdvs(@PathVariable(name="minPrice") int minPrice) {
+		log.info("miPrice:  " + minPrice);
 		List<Adv> res = advService.getPriceAdvs(minPrice);
 		return res;
 		
