@@ -1,14 +1,20 @@
 package advboard.spring.controller;
 
+import java.lang.module.FindException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import advboard.spring.model.Adv;
 import advboard.spring.service.AdvService;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,8 +34,13 @@ public class AdvController {
 	
 	@PostMapping
 	public Adv addAdv(@RequestBody Adv adv) {
-		log.info(adv + "  add");
-		return advService.addAdv(adv);
+		Adv res = null;
+		try {
+		 res = advService.addAdv(adv);
+		} catch (Exception e) {
+			log.error("Unnable to add" + adv,  e);
+		}
+		return res;
 	}
 	@GetMapping
 	public List<Adv> getAdvs() {
@@ -42,16 +53,25 @@ public class AdvController {
 		return res;
 	}
 	@GetMapping("category/{category}")
+	
 	public List<Adv> getCatAdvs(@PathVariable(name="category") String category) {
-		List<Adv> res = advService.getCatAdvs(category);
+		List<Adv> res = new ArrayList<>();
+		try {
+		res = advService.getCatAdvs(category);
+		} catch (Exception e) {
+			log.error("Unnable to find category" + category,  e);
+		}
 		return res;
 	}
 	@GetMapping("price/{minPrice}")
 	public List<Adv> getPriceAdvs(@PathVariable(name="minPrice") int minPrice) {
-		log.info("miPrice:  " + minPrice);
-		List<Adv> res = advService.getPriceAdvs(minPrice);
+		List<Adv> res = new ArrayList<>();
+		try {
+		res = advService.getPriceAdvs(minPrice);
+		} catch (Exception e) {
+			log.error("Incorrect minimal price: " + minPrice,  e);
+		}
 		return res;
-		
 	}
 	@DeleteMapping("{id}")
 	public void deleteAdv(@PathVariable(name="id") String id) {
@@ -59,6 +79,24 @@ public class AdvController {
 	}
 	@PutMapping("{id}")
 	public Adv updateAdv(@PathVariable(name="id") String id,@RequestBody Adv adv) {
-		return advService.updateAdv(adv);
+		Adv res = null;		
+		try {
+		res = advService.updateAdv(adv);
+		} catch (Exception e) {
+			log.error("Unnable to update adv with id: " + id,  e);
+		}
+		return res;
 	}
+	
+	@PostConstruct
+	void init() {
+		advService.resore("advdata.json");
+	}
+	
+	@PreDestroy
+	void shutdown() {
+		advService.save("advdata.json");
+		log.info("context closed");
+	}
+	
 }

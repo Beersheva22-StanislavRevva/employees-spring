@@ -1,5 +1,10 @@
 package advboard.spring.service;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
@@ -35,20 +40,22 @@ public class AdvServiceImplement implements AdvService {
 
 	@Override
 	public Adv getAdv(String id) {
+		log.debug("search adv with id" + id);
 		return advsMap.get(id);
 	}
 
 	@Override
 	public List<Adv> getCatAdvs(String category) {
 		List<Adv> res = new ArrayList<Adv>(categoriesMap.getOrDefault(category, Collections.emptyList()));
-		log.info( category + "result: " + res);
+		log.trace("category:" + category + " result: " + res);
 		return res;
 	}
 
 	@Override
 	public List<Adv> getPriceAdvs(int minPrice) {
 		List<Adv> res = new ArrayList<>();
-		pricesMap.tailMap(minPrice).values().forEach(res::addAll);;
+		pricesMap.tailMap(minPrice).values().forEach(res::addAll);
+		log.trace("minPrice:" + minPrice + " result: " + res);
 		return res;
 	}
 
@@ -57,7 +64,7 @@ public class AdvServiceImplement implements AdvService {
 		Adv adv = advsMap.remove(id);
 		categoriesMap.get(adv.getCategory()).remove(adv);
 		pricesMap.get(adv.getPrice()).remove(adv);
-		log.info("adv with id:" + id + "deleted");
+		log.debug("adv with id:" + id + "deleted");
 
 	}
 
@@ -65,9 +72,43 @@ public class AdvServiceImplement implements AdvService {
 	public Adv updateAdv(Adv adv) {
 		Adv advUpd = adv;
 		deleteAdv(adv.getId());
-		log.info("adv with id:" + adv.getId() + "updated");
+		log.debug("adv with id:" + adv.getId() + "updated");
 		return addAdv(advUpd);
 		 
 	}
+	
+	public void clear() {
+		advsMap.clear();
+		categoriesMap.clear();
+		pricesMap.clear();
+	}
+
+	@Override
+	public void save(String pathName) {
+		try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(pathName))){
+			output.writeObject(getAdvs());
+			log.info("data has beeen saved to file: " + pathName);
+		} catch(Exception e) {
+			throw new RuntimeException(e.toString()); //some error
+		}
+		
+	}
+
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void resore(String pathName) {
+		try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(pathName))) {
+			List<Adv> allAdvs = (List<Adv>) input.readObject();
+			allAdvs.forEach(this::addAdv);
+			log.info("data has beeen restored from file: " + pathName);
+		}catch(FileNotFoundException e) {
+			//empty object but no error
+		} catch (Exception e) {
+			throw new RuntimeException(e.toString()); //some error
+		}
+		
+	}
+	
 
 	}

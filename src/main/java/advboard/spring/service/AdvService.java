@@ -13,5 +13,7 @@ public interface AdvService {
 	void deleteAdv(String id);
 	Adv updateAdv(Adv adv);
 	Adv getAdv(String id);
+	void save (String pathName);
+	void resore (String pathName);
 
 }
