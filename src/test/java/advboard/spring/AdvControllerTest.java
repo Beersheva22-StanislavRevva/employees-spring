@@ -17,8 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import advboard.spring.controller.AdvController;
-import advboard.spring.model.Adv;
+import telran.spring.controller.AdvController;
+import telran.spring.model.Employee;
 
 
 @WebMvcTest({ AdvController.class })
@@ -28,14 +28,14 @@ class AdvertControllerTest {
 	MockMvc mockMvc;
 	@Autowired
 	ObjectMapper mapper;
-	Adv adv;
+	Employee adv;
 	String requestUrl = "http://localhost:8080/advboard";
 	String categoryUrl = String.format("%s/category/test", requestUrl);
 	String priceUrl = String.format("%s/price/200", requestUrl);
 
 	@BeforeEach
 	void setUp() {
-		adv = new Adv(AdvServiceTestConfig.ID, "test", "test", 100, null);
+		adv = new Employee("100000", 0, null, "test", "test", 100, null, categoryUrl);
 	}
 
 	@Test
