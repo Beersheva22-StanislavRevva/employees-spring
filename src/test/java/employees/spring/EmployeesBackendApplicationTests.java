@@ -1,10 +1,10 @@
-package advboard.spring;
+package employees.spring;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AdvboardApplicationTests {
+class EmployeesBackendApplicationTests {
 
 	@Test
 	void contextLoads() {
