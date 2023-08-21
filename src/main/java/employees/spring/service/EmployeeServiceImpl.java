@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,22 +16,29 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import employees.spring.model.Employee;
+import employees.spring.model.ResponseObj;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.validation.constraints.NotEmpty;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import telran.spring.exceptions.NotFoundException;
 
 @Service
 @Slf4j
-public class AdvServiceImplement implements EmployeeService, EmployeesPersistance {
+@RequiredArgsConstructor
+
+public class EmployeeServiceImpl implements EmployeeService, EmployeesPersistance {
 	ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 	ReadLock readLock = lock.readLock();
 	WriteLock writeLock = lock.writeLock();
+	final SimpMessagingTemplate notifier;
 	private Map<Long, Employee> mapEmployee = new HashMap<Long, Employee>();
+	private String task = "";
 	
 	private  Long generateId() {
 		ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -56,10 +62,19 @@ public class AdvServiceImplement implements EmployeeService, EmployeesPersistanc
 			if (res != null) {
 				throw new RuntimeException("Employee with id " + employee.getId() + " already exists");
 			}
+			ResponseObj responseObj = createResponseObj(employee, "add");
+			notifier.convertAndSend("/topic/employees", responseObj);
 			return employee;
 		} finally {
 			writeLock.unlock();
 		}
+	}
+
+	private ResponseObj createResponseObj(Employee employee, String task) {
+		ResponseObj res = new ResponseObj();
+		res.task = task;
+		res.employee = employee;
+		return res;
 	}
 
 	@Override
@@ -80,6 +95,9 @@ public class AdvServiceImplement implements EmployeeService, EmployeesPersistanc
 			if (empl == null) {
 				throw new NotFoundException("Not found" + id);
 			}
+			ResponseObj responseObj = createResponseObj(empl, "delete");
+			
+			notifier.convertAndSend("/topic/employees", responseObj);
 		} finally {
 			writeLock.unlock();
 		}
@@ -92,7 +110,9 @@ public class AdvServiceImplement implements EmployeeService, EmployeesPersistanc
 			if (!mapEmployee.containsKey(empl.getId())) {
 				throw new NotFoundException("Not found " + empl.getId() + " was found");
 			}
-			Employee emplFound = mapEmployee.put(empl.getId(), empl);			
+			Employee emplFound = mapEmployee.put(empl.getId(), empl);
+			ResponseObj responseObj = createResponseObj(empl, "update");
+			notifier.convertAndSend("/topic/employees", responseObj);
 			return emplFound;
 		} finally {
 			writeLock.unlock();
